@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "embedding-model"
+version = "0.1"
+description = "Kserve packaging of huggingface bge embedding model"
+authors = ["Prajwal Raj Basnet <basnetprajwalraj@gmail.com>"]
+packages = [{ include = "*.py" }]
+
+[tool.poetry.dependencies]
+python = "~3.10"
+sentence-transformers = "3.1.1"
+kserve="~0.13"
+
+[tool.poetry.dev-dependencies]
+mypy = "^1.8.0"
+black = "^24.3.0"
+
+[build-system]
+requires = ["poetry-core>=1.7.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 120
+
+[tool.autoflake]
+check = true
+imports = ["fastapi", "psycopg2", "pydantic"]
+remove-all-unused-imports = true
+remove-unused-variables = true
+ignore-pass-statements = true
+ignore-init-module-imports = true
+remove-duplicate-keys = true
+expand-star-imports = true
+in-place = true
