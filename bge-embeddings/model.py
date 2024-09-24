@@ -1,5 +1,6 @@
-import logging
 import kserve
+
+from kserve.logging import logger
 from sentence_transformers import SentenceTransformer
 
 from typing import List, Dict
@@ -14,10 +15,7 @@ class RequestSchema(BaseModel):
 
 
 class ResponseSchema(BaseModel):
-    embeddings: List[str]
-
-
-logger = logging.getLogger(__name__)
+    embeddings: List[float]
 
 
 class EmbeddingModel(kserve.Model):
@@ -35,22 +33,32 @@ class EmbeddingModel(kserve.Model):
     def load(self):
         # TODO: Custom code to resolve path for the latest/required version of the model from model registry
         # TODO: Use cuda if appropriate
+        logger.info("Starting to load model...")
         model_path = "BAAI/bge-large-en-v1.5"
         self.model = SentenceTransformer(model_name_or_path=model_path)
         self.ready = True
+        logger.info("Model loaded to memory...")
 
     def predict(
         self,
-        request: RequestSchema,
-        headers: Dict[str, str] = None,
-    ) -> ResponseSchema:
-        logger.debug(f"payload {request}")
-        logger.debug(f"headers {headers}")
-        embeddings = self.model.encode(request["texts"], normalize_embeddings=True)
+        input: Dict,
+        _: Dict[str, str] = None,
+    ) -> Dict:
+        payload = RequestSchema(**input)
+        
+        instruction = "Represent this sentence for searching relevant passages:"
+        texts = payload.texts
+
+        if payload.is_query_to_passage:
+            texts = [instruction + text for text in texts]
+
+        embeddings = self.model.encode(
+            texts, normalize_embeddings=payload.normalize_embeddings, batch_size=payload.batch_size
+        )
 
         return ResponseSchema(
             embeddings=embeddings,
-        ).model_dump_json()
+        ).model_dump()
 
 
 if __name__ == "__main__":
