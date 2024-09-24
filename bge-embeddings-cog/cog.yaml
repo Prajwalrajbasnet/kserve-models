@@ -1,0 +1,8 @@
+build:
+  gpu: true
+  python_version: "3.10"
+  python_packages:
+    - "sentence-transformers==3.1.1"
+  run:
+    - echo "Model is ready to use"
+predict: "predict.py:Predictor"

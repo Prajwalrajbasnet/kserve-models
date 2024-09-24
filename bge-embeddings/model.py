@@ -1,8 +1,19 @@
 import kserve
-
 from sentence_transformers import SentenceTransformer
 
-from .schemas import RequestSchema, ResponseSchema
+from typing import List
+from pydantic import BaseModel
+
+
+class RequestSchema(BaseModel):
+    is_query_to_passage: bool = False
+    texts: List[str]
+    normalize_embeddings: bool = True
+    batch_size: int = 32
+
+
+class ResponseSchema(BaseModel):
+    embeddings: List[str]
 
 
 class EmbeddingModel(kserve.Model):
@@ -20,7 +31,7 @@ class EmbeddingModel(kserve.Model):
     def load(self):
         # TODO: Custom code to resolve path for the latest/required version of the model from model registry
         # TODO: Use cuda if appropriate
-        model_path = "./models/BAAI_bge-large-en"
+        model_path = "BAAI/bge-large-en-v1.5"
         self.model = SentenceTransformer(model_name_or_path=model_path)
         self.ready = True
 
