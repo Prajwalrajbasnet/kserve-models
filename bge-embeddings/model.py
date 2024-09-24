@@ -1,3 +1,4 @@
+import logging
 import kserve
 from sentence_transformers import SentenceTransformer
 
@@ -14,6 +15,9 @@ class RequestSchema(BaseModel):
 
 class ResponseSchema(BaseModel):
     embeddings: List[str]
+
+
+logger = logging.getLogger(__name__)
 
 
 class EmbeddingModel(kserve.Model):
@@ -35,12 +39,18 @@ class EmbeddingModel(kserve.Model):
         self.model = SentenceTransformer(model_name_or_path=model_path)
         self.ready = True
 
-    def predict(self, request: RequestSchema, _: Dict[str, str] = None,) -> ResponseSchema:
-        embeddings = self.model.encode(request.texts, normalize_embeddings=True)
+    def predict(
+        self,
+        request: RequestSchema,
+        headers: Dict[str, str] = None,
+    ) -> ResponseSchema:
+        logger.debug(f"payload {request}")
+        logger.debug(f"headers {headers}")
+        embeddings = self.model.encode(request["texts"], normalize_embeddings=True)
 
         return ResponseSchema(
             embeddings=embeddings,
-        )
+        ).model_dump_json()
 
 
 if __name__ == "__main__":
