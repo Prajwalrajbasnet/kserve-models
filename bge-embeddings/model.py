@@ -15,7 +15,7 @@ class RequestSchema(BaseModel):
 
 
 class ResponseSchema(BaseModel):
-    embeddings: List[float]
+    embeddings: List[List[float]]
 
 
 class EmbeddingModel(kserve.Model):
@@ -45,7 +45,7 @@ class EmbeddingModel(kserve.Model):
         _: Dict[str, str] = None,
     ) -> Dict:
         payload = RequestSchema(**input)
-        
+
         instruction = "Represent this sentence for searching relevant passages:"
         texts = payload.texts
 
@@ -57,7 +57,7 @@ class EmbeddingModel(kserve.Model):
         )
 
         return ResponseSchema(
-            embeddings=embeddings,
+            embeddings=embeddings.tolist(),
         ).model_dump()
 
 
