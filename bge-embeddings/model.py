@@ -1,7 +1,7 @@
 import kserve
 from sentence_transformers import SentenceTransformer
 
-from typing import List
+from typing import List, Dict
 from pydantic import BaseModel
 
 
@@ -35,7 +35,7 @@ class EmbeddingModel(kserve.Model):
         self.model = SentenceTransformer(model_name_or_path=model_path)
         self.ready = True
 
-    def predict(self, request: RequestSchema) -> ResponseSchema:
+    def predict(self, request: RequestSchema, _: Dict[str, str] = None,) -> ResponseSchema:
         embeddings = self.model.encode(request.texts, normalize_embeddings=True)
 
         return ResponseSchema(
