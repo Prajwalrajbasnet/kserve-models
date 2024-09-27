@@ -1,0 +1,9 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: embedding-model
+spec:
+  predictor:
+    containers:
+      - name: embedding-model
+        image: prajwalrajbasnet/kserve-bge-embeddings:latest
